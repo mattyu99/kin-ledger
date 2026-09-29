@@ -7,65 +7,66 @@ import { useLedger } from '@/src/context/LedgerProvider';
 import { formatCurrency } from '@/src/domain/ledger';
 
 export default function OverviewScreen() {
-  const { householdName, members, transactions, categories, balances, monthSummary } = useLedger();
-  const monthLabel = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format(new Date());
+  const { householdName, members, transactions, categories, balances, monthSummary, cloudStatus } = useLedger();
+  const currentDate = new Date();
+  const monthLabel = `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月`;
   const recentTransactions = [...transactions]
     .sort((first, second) => second.occurredAt.localeCompare(first.occurredAt))
     .slice(0, 4);
-  const unsettledCount = balances.filter(item => item.balanceCents !== 0).length;
+  const unsettledCount = balances.filter(item => item.balanceMinor !== 0).length;
 
   return (
     <Page>
       <View style={styles.topLine}>
         <View>
-          <Eyebrow>HOUSEHOLD LEDGER · {monthLabel.toUpperCase()}</Eyebrow>
+          <Eyebrow>家庭共同帳本 · {monthLabel}</Eyebrow>
           <Text style={styles.householdName}>{householdName}</Text>
         </View>
         <View style={styles.localBadge}>
           <View style={styles.localDot} />
-          <Text style={styles.localBadgeText}>ON THIS DEVICE</Text>
+          <Text style={styles.localBadgeText}>{cloudStatus === 'cloud' ? '雲端家庭帳本' : '僅儲存於本機'}</Text>
         </View>
       </View>
 
       <View style={styles.hero}>
         <View style={styles.heroHeader}>
-          <Text style={styles.heroLabel}>SPENT THIS MONTH</Text>
+          <Text style={styles.heroLabel}>本月總支出</Text>
           <View style={styles.heroMark}><Text style={styles.heroMarkText}>KL</Text></View>
         </View>
-        <Text style={styles.heroAmount}>{formatCurrency(monthSummary.expensesCents)}</Text>
+        <Text style={styles.heroAmount}>{formatCurrency(monthSummary.expensesMinor)}</Text>
         <View style={styles.heroFooter}>
-          <Text style={styles.heroCaption}>Across {transactions.length} household entries</Text>
+          <Text style={styles.heroCaption}>共 {transactions.length} 筆家庭收支</Text>
           <Text style={styles.heroMonth}>{monthLabel}</Text>
         </View>
       </View>
 
       <View style={styles.metricsRow}>
         <View style={styles.metric}>
-          <Eyebrow>INCOME</Eyebrow>
-          <Text style={[styles.metricAmount, { color: '#3c7965' }]}>{formatCurrency(monthSummary.incomeCents)}</Text>
+          <Eyebrow>本月收入</Eyebrow>
+          <Text style={[styles.metricAmount, { color: '#3c7965' }]}>{formatCurrency(monthSummary.incomeMinor)}</Text>
         </View>
         <View style={styles.metricRule} />
         <View style={styles.metric}>
-          <Eyebrow>NET FLOW</Eyebrow>
-          <Text style={[styles.metricAmount, { color: monthSummary.netCents < 0 ? theme.coral : theme.ink }]}>
-            {formatCurrency(monthSummary.netCents)}
+          <Eyebrow>收支結餘</Eyebrow>
+          <Text style={[styles.metricAmount, { color: monthSummary.netMinor < 0 ? theme.coral : theme.ink }]}>
+            {formatCurrency(monthSummary.netMinor)}
           </Text>
         </View>
       </View>
 
       <View style={styles.sectionHead}>
-        <SectionTitle title="Household balance" action={<Text style={styles.memberCount}>{members.length} MEMBERS</Text>} />
-        <Text style={styles.sectionHint}>Positive means owed to them · negative means they owe</Text>
+        <SectionTitle title="家庭成員結算" action={<Text style={styles.memberCount}>{members.length} 位成員</Text>} />
+        <Text style={styles.sectionHint}>正數代表應收，負數代表應付</Text>
       </View>
       <View style={styles.memberList}>
         {members.map(member => {
-          const balance = balances.find(item => item.memberId === member.id)?.balanceCents ?? 0;
+          const balance = balances.find(item => item.memberId === member.id)?.balanceMinor ?? 0;
           return (
             <View key={member.id} style={styles.memberRow}>
               <MemberAvatar member={member} size={38} />
               <Text style={styles.memberName}>{member.name}</Text>
               <Text style={[styles.memberBalance, { color: balance < 0 ? theme.coral : balance > 0 ? '#3c7965' : theme.muted }]}>
-                {balance === 0 ? 'Settled' : `${balance > 0 ? '+' : '−'}${formatCurrency(Math.abs(balance))}`}
+                {balance === 0 ? '已結清' : `${balance > 0 ? '+' : '−'}${formatCurrency(Math.abs(balance))}`}
               </Text>
             </View>
           );
@@ -74,30 +75,30 @@ export default function OverviewScreen() {
 
       <View style={styles.settleCallout}>
         <View style={styles.calloutCopy}>
-          <Text style={styles.calloutTitle}>{unsettledCount ? 'A little housekeeping' : 'All square'}</Text>
+          <Text style={styles.calloutTitle}>{unsettledCount ? '待處理的家庭帳款' : '目前帳目已結清'}</Text>
           <Text style={styles.calloutText}>
-            {unsettledCount ? `${unsettledCount} members have a balance to settle.` : 'Nobody owes anything right now.'}
+            {unsettledCount ? `${unsettledCount} 位成員尚有應收付金額。` : '目前沒有未結清款項。'}
           </Text>
         </View>
         <Pressable style={styles.calloutButton} onPress={() => router.push('/(tabs)/settlement')}>
-          <Text style={styles.calloutButtonText}>Review</Text>
+          <Text style={styles.calloutButtonText}>查看</Text>
           <Text style={styles.calloutArrow}>→</Text>
         </Pressable>
       </View>
 
       <View style={styles.sectionHead}>
-        <SectionTitle title="Latest activity" action={<Text style={styles.memberCount}>{transactions.length} TOTAL</Text>} />
+        <SectionTitle title="近期收支" action={<Text style={styles.memberCount}>共 {transactions.length} 筆</Text>} />
       </View>
       <View style={styles.transactionList}>
         {recentTransactions.map(transaction => (
           <TransactionRow key={transaction.id} transaction={transaction} members={members} categories={categories} />
         ))}
-        {recentTransactions.length === 0 ? <Text style={styles.emptyText}>No entries yet. Add your first one below.</Text> : null}
+        {recentTransactions.length === 0 ? <Text style={styles.emptyText}>還沒有記帳紀錄，新增第一筆收支吧。</Text> : null}
       </View>
 
       <Pressable style={styles.addButton} onPress={() => router.push('/add-transaction')}>
         <Text style={styles.addIcon}>＋</Text>
-        <Text style={styles.addButtonText}>Add an entry</Text>
+        <Text style={styles.addButtonText}>新增一筆收支</Text>
       </Pressable>
     </Page>
   );

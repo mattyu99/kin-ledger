@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { theme } from '@/src/constants/theme';
+import { AuthProvider } from '@/src/context/AuthProvider';
 import { LedgerProvider } from '@/src/context/LedgerProvider';
 
 export {
@@ -41,9 +42,11 @@ export default function RootLayout() {
   }
 
   return (
-    <LedgerProvider>
-      <RootLayoutNav />
-    </LedgerProvider>
+    <AuthProvider>
+      <LedgerProvider>
+        <RootLayoutNav />
+      </LedgerProvider>
+    </AuthProvider>
   );
 }
 
@@ -51,6 +54,10 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <Stack screenOptions={{ contentStyle: { backgroundColor: theme.canvas } }}>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/callback" options={{ headerShown: false }} />
+        <Stack.Screen name="household" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="add-transaction" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>
