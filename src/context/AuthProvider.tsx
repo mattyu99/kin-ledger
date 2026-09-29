@@ -1,4 +1,5 @@
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import type { Session } from '@supabase/supabase-js';
@@ -17,7 +18,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 function getAuthRedirectUrl(): string {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    return new URL('/auth/callback', window.location.origin).toString();
+    const configuredBaseUrl = Constants.expoConfig?.experiments?.baseUrl ?? '';
+    const baseUrl = configuredBaseUrl.replace(/\/$/, '');
+    return new URL(`${baseUrl}/auth/callback`, window.location.origin).toString();
   }
   return Linking.createURL('auth/callback');
 }

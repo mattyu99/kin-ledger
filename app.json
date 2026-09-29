@@ -37,7 +37,8 @@
       "expo-sharing"
     ],
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "baseUrl": "/kin-ledger"
     }
   }
 }

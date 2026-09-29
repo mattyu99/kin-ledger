@@ -29,6 +29,21 @@ npm run lint
 npx expo install --check
 ```
 
+## GitHub Pages（Deploy from a branch）
+
+此專案發布於 `https://mattyu99.github.io/kin-ledger/`，Expo 的 `experiments.baseUrl` 已設定為 `/kin-ledger`。手動發布到 Pages 的 `/docs`：
+
+```sh
+npm run build:web
+mkdir -p docs
+cp -R dist/. docs/
+touch docs/.nojekyll
+```
+
+將 `docs/` 內容推送到 `kin-ledger` repository 後，在 repository 的 **Settings → Pages → Build and deployment** 選 **Deploy from a branch**，Branch 選包含這些變更的分支，資料夾選 `/docs`。每次更新網站都要重新 build、複製 `dist/` 內容到 `docs/` 並推送。
+
+Supabase **Authentication → URL Configuration** 的 Site URL 設為 `https://mattyu99.github.io`，Redirect URLs 加入 `https://mattyu99.github.io/kin-ledger/auth/callback`。GitHub Pages 網站是公開網站；Publishable key 可放在前端 bundle，但絕不可放 Secret／service-role key。家庭資料仍由 Supabase Auth 與 RLS 保護。
+
 ## 資料與匯出
 
 - TWD 金額以整數元儲存；不接受小數金額。
