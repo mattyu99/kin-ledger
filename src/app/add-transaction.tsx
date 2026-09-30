@@ -175,7 +175,7 @@ export default function AddTransactionScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.canvas },
   fill: { flex: 1 },
-  content: { width: '100%', maxWidth: 720, alignSelf: 'center', paddingHorizontal: 22, paddingTop: 14, paddingBottom: 30 },
+  content: { width: '100%', maxWidth: 720, alignSelf: 'center', boxSizing: 'border-box', paddingHorizontal: 22, paddingTop: 14, paddingBottom: 30 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 19 },
   eyebrow: { color: theme.muted, fontSize: 10, fontWeight: '800', letterSpacing: 1 },
   heading: { color: theme.ink, fontSize: 27, fontWeight: '800', marginTop: 4 },
