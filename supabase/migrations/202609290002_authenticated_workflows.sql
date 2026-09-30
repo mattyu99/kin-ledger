@@ -1,3 +1,5 @@
+create extension if not exists pgcrypto;
+
 create or replace function public.create_household_for_current_user(p_name text)
 returns uuid
 language plpgsql
