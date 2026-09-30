@@ -1,8 +1,19 @@
 import { SymbolView } from 'expo-symbols';
 import { Tabs } from 'expo-router';
+import { Platform, Text, type ColorValue } from 'react-native';
+import type { ComponentProps } from 'react';
 
 import { theme } from '@/src/constants/theme';
 import { CloudRouteGate } from '@/src/components/CloudRouteGate';
+
+type SymbolName = ComponentProps<typeof SymbolView>['name'];
+
+function TabIcon({ color, name, glyph }: { color: ColorValue; name: SymbolName; glyph: string }) {
+  if (Platform.OS === 'web') {
+    return <Text accessibilityElementsHidden style={{ color, fontSize: 22, lineHeight: 22 }}>{glyph}</Text>;
+  }
+  return <SymbolView name={name} tintColor={color} size={22} />;
+}
 
 export default function TabLayout() {
   return (
@@ -19,36 +30,28 @@ export default function TabLayout() {
           name="index"
           options={{
             title: '總覽',
-            tabBarIcon: ({ color }) => (
-              <SymbolView name={{ ios: 'house.fill', android: 'home', web: 'home' }} tintColor={color} size={22} />
-            ),
+            tabBarIcon: ({ color }) => <TabIcon color={color} name={{ ios: 'house.fill', android: 'home', web: 'home' }} glyph="⌂" />,
           }}
         />
         <Tabs.Screen
           name="activity"
           options={{
             title: '明細',
-            tabBarIcon: ({ color }) => (
-              <SymbolView name={{ ios: 'list.bullet', android: 'list', web: 'list' }} tintColor={color} size={22} />
-            ),
+            tabBarIcon: ({ color }) => <TabIcon color={color} name={{ ios: 'list.bullet', android: 'list', web: 'list' }} glyph="☷" />,
           }}
         />
         <Tabs.Screen
           name="settlement"
           options={{
             title: '結算',
-            tabBarIcon: ({ color }) => (
-              <SymbolView name={{ ios: 'arrow.left.arrow.right', android: 'swap_horiz', web: 'swap_horiz' }} tintColor={color} size={22} />
-            ),
+            tabBarIcon: ({ color }) => <TabIcon color={color} name={{ ios: 'arrow.left.arrow.right', android: 'swap_horiz', web: 'swap_horiz' }} glyph="⇄" />,
           }}
         />
         <Tabs.Screen
           name="family"
           options={{
             title: '家庭',
-            tabBarIcon: ({ color }) => (
-              <SymbolView name={{ ios: 'person.2.fill', android: 'group', web: 'group' }} tintColor={color} size={22} />
-            ),
+            tabBarIcon: ({ color }) => <TabIcon color={color} name={{ ios: 'person.2.fill', android: 'group', web: 'group' }} glyph="♧" />,
           }}
         />
       </Tabs>
