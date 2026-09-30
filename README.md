@@ -29,6 +29,66 @@ npm run lint
 npx expo install --check
 ```
 
+## 建立 App 安裝檔（EAS Build）
+
+本專案可以使用 Expo Application Services（EAS）在雲端建立 Android／iOS 安裝檔。EAS Build 需要免費的 Expo 帳號；Expo 帳號和 Supabase 帳號不同。只使用 Web 或 Expo Go 開發時不需要登入 EAS。
+
+第一次使用 EAS 時，在同一個終端機依序執行：
+
+```sh
+export PATH="$HOME/.local/lib/node-v22/bin:$PATH"
+npx eas-cli@latest login
+npx eas-cli@latest build:configure
+```
+
+`login` 會登入 Expo 帳號；`build:configure` 會建立 `eas.json` 並初始化 EAS 專案設定。兩個指令請分開執行，確認登入成功後再執行下一個。建置前可用以下指令確認帳號：
+
+```sh
+npx eas-cli@latest whoami
+```
+
+### Android 測試版
+
+`preview` profile 用於測試，通常產生可直接安裝到 Android 手機的 `.apk`：
+
+```sh
+npx eas-cli@latest build --platform android --profile preview
+```
+
+建置完成後，EAS 會提供下載連結。若手機阻擋安裝，需允許該來源安裝未知 App。
+
+### Android 正式版
+
+`production` profile 用於上架 Google Play，通常產生 `.aab`，不是直接安裝用的 APK：
+
+```sh
+npx eas-cli@latest build --platform android --profile production
+```
+
+Google Play 上架需要 Google Play Developer 帳號。Android 簽章金鑰可交由 EAS 建立並保管；請妥善保留正式專案與簽章設定。
+
+### iOS
+
+```sh
+npx eas-cli@latest build --platform ios
+```
+
+iOS 測試與上架需要 Apple Developer 帳號。測試通常透過 TestFlight，不能像 Android APK 一樣任意下載安裝 IPA。
+
+### EAS 建置注意事項
+
+- 雲端建置不會自動使用本機 `.env` 的秘密設定；請在 Expo project 的 EAS environment variables 設定 `EXPO_PUBLIC_SUPABASE_URL` 和 `EXPO_PUBLIC_SUPABASE_ANON_KEY`。
+- 只能設定 Supabase Project URL 與 Publishable／anon key；絕不可放入 service-role key 或其他 Secret key。
+- 本專案的 App scheme 是 `kinledger`，Supabase **Authentication → URL Configuration → Redirect URLs** 必須加入 `kinledger://auth/callback`，原生 magic link 才能回到 App。
+- 若 npm 出現 `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`，先設定系統 CA 憑證，不要關閉 SSL 驗證：
+
+	```sh
+	export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+	npm config set cafile /etc/ssl/certs/ca-certificates.crt
+	```
+
+- `preview` 適合手機直接測試；`production` 適合商店發布。每次建置前先確認目前分支、環境變數與 Supabase Redirect URLs。
+
 ## GitHub Pages（Deploy from a branch）
 
 此專案發布於 `https://mattyu99.github.io/kin-ledger/`，Expo 的 `experiments.baseUrl` 已設定為 `/kin-ledger`。手動發布到 Pages 的 `/docs`：

@@ -1,10 +1,10 @@
-import { SymbolView } from 'expo-symbols';
 import { Tabs } from 'expo-router';
-import { Platform, Text, type ColorValue } from 'react-native';
+import { SymbolView } from 'expo-symbols';
 import type { ComponentProps } from 'react';
+import { Platform, Text, type ColorValue } from 'react-native';
 
-import { theme } from '@/src/constants/theme';
 import { CloudRouteGate } from '@/src/components/CloudRouteGate';
+import { theme } from '@/src/constants/theme';
 
 type SymbolName = ComponentProps<typeof SymbolView>['name'];
 

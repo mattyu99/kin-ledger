@@ -17,7 +17,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.myu999.kinledger"
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +40,12 @@
     "experiments": {
       "typedRoutes": true,
       "baseUrl": "/kin-ledger"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d91b6ad7-d060-4f7b-bc7f-ddfa533a7431"
+      }
     }
   }
 }
