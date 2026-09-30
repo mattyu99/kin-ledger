@@ -67,11 +67,11 @@ begin
     raise exception 'Invalid invite limits' using errcode = '22023';
   end if;
 
-  invite_code := encode(gen_random_bytes(16), 'hex');
+  invite_code := encode(extensions.gen_random_bytes(16), 'hex');
   insert into public.household_invites (household_id, token_hash, created_by, expires_at, max_uses)
   values (
     p_household_id,
-    encode(digest(invite_code, 'sha256'), 'hex'),
+    encode(extensions.digest(invite_code, 'sha256'), 'hex'),
     auth.uid(),
     now() + make_interval(days => p_expires_in_days),
     p_max_uses
@@ -103,7 +103,7 @@ begin
 
   select * into invite_row
   from public.household_invites
-  where token_hash = encode(digest(normalized_code, 'sha256'), 'hex')
+  where token_hash = encode(extensions.digest(normalized_code, 'sha256'), 'hex')
   for update;
 
   if not found or invite_row.expires_at <= now() or invite_row.used_count >= invite_row.max_uses then
