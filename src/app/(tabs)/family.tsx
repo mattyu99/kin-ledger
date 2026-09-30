@@ -15,6 +15,7 @@ export default function FamilyScreen() {
     householdName,
     members,
     householdId,
+    currentUserRole,
     cloudStatus,
     realtimeStatus,
     createInvite,
@@ -23,11 +24,20 @@ export default function FamilyScreen() {
   const [isWorking, setIsWorking] = useState(false);
 
   const makeInvite = async () => {
+    if (currentUserRole !== 'owner' && currentUserRole !== 'admin') {
+      showMessage('無法建立邀請碼', '只有家庭擁有者或管理員可以建立邀請碼。');
+      return;
+    }
     setIsWorking(true);
     try {
       setInviteCode(await createInvite());
     } catch (error) {
-      showMessage('無法建立邀請碼', error instanceof Error ? error.message : '請稍後再試。');
+      const message = error instanceof Error
+        ? error.message
+        : typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string'
+          ? error.message
+          : '請稍後再試。';
+      showMessage('無法建立邀請碼', message);
     } finally {
       setIsWorking(false);
     }
@@ -82,7 +92,7 @@ export default function FamilyScreen() {
             <Text style={styles.inviteTitle}>邀請家人加入</Text>
             <Text style={styles.inviteSubtitle}>邀請碼 7 天後到期，最多可使用 5 次。</Text>
           </View>
-          <Pressable accessibilityRole="button" disabled={isWorking} onPress={() => void makeInvite()} style={styles.inviteButton}>
+          <Pressable accessibilityRole="button" disabled={isWorking || (currentUserRole !== 'owner' && currentUserRole !== 'admin')} onPress={() => void makeInvite()} style={styles.inviteButton}>
             <Text style={styles.inviteButtonText}>{isWorking ? '建立中…' : '建立邀請碼'}</Text>
           </Pressable>
           {inviteCode ? (
